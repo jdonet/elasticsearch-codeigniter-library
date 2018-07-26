@@ -107,7 +107,9 @@ class ElasticSearch
 
     public function count($type)
     {
-        return $this -> call($type . '/_count?' . http_build_query(array(null => '{matchAll:{}}')));
+        //return $this -> call($type . '/_count?' . http_build_query(array(null => '{matchAll:{}}')));
+        return $this -> call($type . '/_count?' . http_build_query(array('q' => "*.*")));
+
     }
 
     /**
