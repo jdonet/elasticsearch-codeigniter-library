@@ -8,11 +8,9 @@
 class ElasticSearch
 {
     public $index;
-
     /**
      * constructor setting the config variables for server ip and index.
      */
-
     public function __construct()
     {
         $ci = &get_instance();
@@ -30,24 +28,19 @@ class ElasticSearch
      * @return type
      * @throws Exception
      */
-
     private function call($path, $method = 'GET', $data = null)
     {
         if (!$this -> index) {
             throw new Exception('$this->index needs a value');
         }
-
         $url = $this -> server . '/' . $this -> index . '/' . $path;
-
         $headers = array('Accept: application/json', 'Content-Type: application/json', );
-
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $url);
         curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-
         switch($method) {
             case 'GET' :
                 break;
@@ -63,20 +56,15 @@ class ElasticSearch
                 curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'DELETE');
                 break;
         }
-
         $response = curl_exec($ch);
         $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-
         return json_decode($response, true);
     }
-
-
     /**
      * create a index with mapping or not
      * 
      * @param json $map
      */
-
     public function create($map = false)
     {
         if (!$map) {
@@ -85,18 +73,15 @@ class ElasticSearch
             $this -> call(null, 'PUT', $map);
         }
     }
-
     /**
      * get status
      * 
      * @return array
      */
-
     public function status()
     {
         return $this -> call('_status');
     }
-
     /**
      * count how many indexes it exists
      * 
@@ -104,14 +89,11 @@ class ElasticSearch
      * 
      * @return array
      */
-
     public function count($type)
     {
-        //return $this -> call($type . '/_count?' . http_build_query(array(null => '{matchAll:{}}')));
-        return $this -> call($type . '/_count?' . http_build_query(array('q' => "*.*")));
-
+        return $this -> call($type . '/_count');
+        //return $this -> call($type . '/_count?' . http_build_query(array('q' => "*.*")));
     }
-
     /**
      * set the mapping for the index
      * 
@@ -120,12 +102,10 @@ class ElasticSearch
      * 
      * @return array
      */
-
     public function map($type, $data)
     {
         return $this -> call($type . '/_mapping', 'PUT', $data);
     }
-
     /**
      * set the mapping for the index
      * 
@@ -135,12 +115,10 @@ class ElasticSearch
      * 
      * @return type
      */
-
     public function add($type, $id, $data)
     {
         return $this -> call($type . '/' . $id, 'PUT', $data);
     }
-
     /**
      * delete a index
      * 
@@ -149,12 +127,10 @@ class ElasticSearch
      * 
      * @return type 
      */
-
     public function delete($type, $id)
     {
         return $this -> call($type . '/' . $id, 'DELETE');
     }
-
     /**
      * make a simple search query
      * 
@@ -163,12 +139,10 @@ class ElasticSearch
      * 
      * @return type
      */
-
     public function query($type, $q)
     {
         return $this -> call($type . '/_search?' . http_build_query(array('q' => $q)));
     }
-
     /**
      * make a advanced search query with json data to send
      * 
@@ -177,12 +151,10 @@ class ElasticSearch
      * 
      * @return type
      */
-
     public function advancedquery($type, $query)
     {
         return $this -> call($type . '/_search', 'POST', $query);
     }
-
     /**
      * make a search query with result sized set
      * 
@@ -192,12 +164,10 @@ class ElasticSearch
      * 
      * @return array
      */
-
     public function query_wresultSize($type, $query, $size = 999)
     {
         return $this -> call($type . '/_search?' . http_build_query(array('q' => $q, 'size' => $size)));
     }
-
     /**
      * get one index via the id
      * 
@@ -206,12 +176,10 @@ class ElasticSearch
      * 
      * @return type
      */
-
     public function get($type, $id)
     {
         return $this -> call($type . '/' . $id, 'GET');
     }
-
     /**
      * Query the whole server
      * 
@@ -219,12 +187,10 @@ class ElasticSearch
      * 
      * @return type
      */
-
     public function query_all($query)
     {
         return $this -> call('_search?' . http_build_query(array('q' => $query)));
     }
-
     /**
      * get similar indexes for one index specified by id - send data to add filters or more
      * 
@@ -235,7 +201,6 @@ class ElasticSearch
      * 
      * @return array 
      */
-
     public function morelikethis($type, $id, $fields = false, $data = false)
     {
         if ($data != false && !$fields) {
@@ -248,7 +213,6 @@ class ElasticSearch
             return $this -> call($type . '/' . $id . '/_mlt?' . $fields);
         }
     }
-
     /**
      * make a search query with result sized set
      * 
@@ -261,7 +225,6 @@ class ElasticSearch
     {
         return $this -> call('_search?' . http_build_query(array('q' => $query, 'size' => $size)));
     }
-
     /**
      * make a suggest query based on similar looking terms
      * 
@@ -273,5 +236,4 @@ class ElasticSearch
     {
         return $this -> call('_suggest', 'POST', $query);
     }
-
 }
